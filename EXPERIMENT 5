@@ -1,0 +1,110 @@
+INPUT : 
+
+#include <stdio.h>
+
+#define MAX 100
+
+typedef struct {
+    int pid;
+    int burst_time;
+    int priority;
+    int waiting_time;
+    int turnaround_time;
+} Process;
+
+// Function to sort processes by priority (ascending)
+void sort_by_priority(Process p[], int n) {
+    Process temp;
+    for(int i = 0; i < n - 1; i++) {
+        for(int j = i + 1; j < n; j++) {
+            if(p[i].priority > p[j].priority) {
+                temp = p[i];
+                p[i] = p[j];
+                p[j] = temp;
+            }
+        }
+    }
+}
+
+void calculate_times(Process p[], int n) {
+    p[0].waiting_time = 0;
+
+    for(int i = 1; i < n; i++) {
+        p[i].waiting_time = p[i-1].waiting_time + p[i-1].burst_time;
+    }
+
+    for(int i = 0; i < n; i++) {
+        p[i].turnaround_time = p[i].waiting_time + p[i].burst_time;
+    }
+}
+
+void print_process_table(Process p[], int n) {
+    printf("\nPID\tBurst\tPriority\tWaiting\tTurnaround\n");
+    for(int i = 0; i < n; i++) {
+        printf("P%d\t%d\t%d\t\t%d\t%d\n",
+               p[i].pid,
+               p[i].burst_time,
+               p[i].priority,
+               p[i].waiting_time,
+               p[i].turnaround_time);
+    }
+}
+
+int main() {
+    Process p[MAX];
+    int n;
+
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+
+    for(int i = 0; i < n; i++) {
+        p[i].pid = i + 1;
+        printf("Enter burst time for P%d: ", p[i].pid);
+        scanf("%d", &p[i].burst_time);
+        printf("Enter priority for P%d (lower value = higher priority): ", p[i].pid);
+        scanf("%d", &p[i].priority);
+    }
+
+    sort_by_priority(p, n);
+    calculate_times(p, n);
+    print_process_table(p, n);
+
+    float avg_wait = 0, avg_turnaround = 0;
+    for(int i = 0; i < n; i++) {
+        avg_wait += p[i].waiting_time;
+        avg_turnaround += p[i].turnaround_time;
+    }
+
+    printf("\nAverage Waiting Time: %.2f", avg_wait / n);
+    printf("\nAverage Turnaround Time: %.2f\n", avg_turnaround / n);
+
+    return 0;
+}
+
+OUTPUT : 
+
+Enter number of processes: 
+5
+Enter burst time for P1: 4
+Enter priority for P1 (lower value = higher priority): 6
+Enter burst time for P2: 5
+Enter priority for P2 (lower value = higher priority): 7
+Enter burst time for P3: 89
+Enter priority for P3 (lower value = higher priority): 4
+Enter burst time for P4: 12
+Enter priority for P4 (lower value = higher priority): 1
+Enter burst time for P5: 2
+Enter priority for P5 (lower value = higher priority): 45
+
+PID	Burst	Priority	Waiting	Turnaround
+P4	12	1		0	12
+P3	89	4		12	101
+P1	4	6		101	105
+P2	5	7		105	110
+P5	2	45		110	112
+
+Average Waiting Time: 65.60
+Average Turnaround Time: 88.00
+
+
+=== Code Execution Successful ===
