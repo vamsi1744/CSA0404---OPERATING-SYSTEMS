@@ -14,31 +14,30 @@ int main() {
     char *shared_memory;
     key_t key = 1234;
 
-    // Create shared memory
     shmid = shmget(key, SHM_SIZE, IPC_CREAT | 0666);
     if (shmid < 0) {
         perror("shmget");
         exit(1);
     }
 
-    // Attach shared memory
+    
     shared_memory = (char *)shmat(shmid, NULL, 0);
     if (shared_memory == (char *)-1) {
         perror("shmat");
         exit(1);
     }
 
-    // Fork a child process
+   
     pid_t pid = fork();
     if (pid < 0) {
         perror("fork");
         exit(1);
     }
 
-    if (pid == 0) { // Child process (Reader)
+    if (pid == 0) { 
         sleep(1); // Ensure parent writes first
         printf("Child process reads: %s\n", shared_memory);
-        // Detach shared memory
+        
         if (shmdt(shared_memory) == -1) {
             perror("shmdt");
             exit(1);
@@ -47,13 +46,13 @@ int main() {
         char *message = "Hello from parent!";
         strcpy(shared_memory, message);
         printf("Parent process writes: %s\n", message);
-        wait(NULL); // Wait for child to finish
-        // Detach shared memory
+        wait(NULL); 
+        
         if (shmdt(shared_memory) == -1) {
             perror("shmdt");
             exit(1);
         }
-        // Remove shared memory
+        
         if (shmctl(shmid, IPC_RMID, NULL) == -1) {
             perror("shmctl");
             exit(1);
